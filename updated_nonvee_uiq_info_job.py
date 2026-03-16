@@ -429,15 +429,16 @@ def main():
     print(f'===== Step 2: 1st EXPLODE (intervals) =====')
     interval_exploded_df = (
         interval_data_files_src_df
-        .withColumn("exp_interval", F.explode("interval_reading.Interval"))
+        .withColumn("exp_ird", F.explode("interval_reading"))
+        .withColumn("exp_interval", F.explode("exp_ird.Interval"))
         .select(
             F.col("metername").alias("MeterName"),
             F.col("utildeviceid").alias("UtilDeviceID"),
             F.col("macid").alias("MacID"),
-            F.col("interval_reading._IntervalLength").alias("IntervalLength"),
-            F.col("interval_reading._StartTime").alias("blockstarttime"),
-            F.col("interval_reading._EndTime").alias("blockendtime"),
-            F.col("interval_reading._NumberIntervals").alias("NumberIntervals"),
+            F.col("exp_ird._IntervalLength").alias("IntervalLength"),
+            F.col("exp_ird._StartTime").alias("blockstarttime"),
+            F.col("exp_ird._EndTime").alias("blockendtime"),
+            F.col("exp_ird._NumberIntervals").alias("NumberIntervals"),
             F.col("part_date"),
             F.col("exp_interval._EndTime").alias("int_endtime"),
             F.col("exp_interval._GatewayCollectedTime").alias("int_gatewaycollectedtime"),
