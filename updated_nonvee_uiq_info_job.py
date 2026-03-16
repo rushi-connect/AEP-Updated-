@@ -342,20 +342,20 @@ def main():
         data_file_ext=data_file_ext,
     )
 
-    # === TESTING ONLY: limit to 10 files — remove this block after testing ===
-    max_test_files = 10
-    _limited_map = {}
-    _remaining = max_test_files
-    for _k, _files in filtered_data_files_map.items():
-        _take = _files[:_remaining]
-        if _take:
-            _limited_map[_k] = _take
-            _remaining -= len(_take)
-        if _remaining <= 0:
-            break
-    filtered_data_files_map = _limited_map
-    print(f'===== TESTING: limited to {sum(len(f) for f in filtered_data_files_map.values())} files =====')
-    # === END TESTING BLOCK ===
+    ## === TESTING ONLY: limit to 10 files — remove this block after testing ===
+    #max_test_files = 10
+    #_limited_map = {}
+    #_remaining = max_test_files
+    #for _k, _files in filtered_data_files_map.items():
+    #    _take = _files[:_remaining]
+    #    if _take:
+    #        _limited_map[_k] = _take
+    #        _remaining -= len(_take)
+    #    if _remaining <= 0:
+    #        break
+    #filtered_data_files_map = _limited_map
+    #print(f'===== TESTING: limited to {sum(len(f) for f in filtered_data_files_map.values())} files =====')
+    ## === END TESTING BLOCK ===
 
     files_count = sum(len(f) for f in filtered_data_files_map.values())
     if files_count == 0:
