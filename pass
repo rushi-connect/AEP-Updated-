@@ -13,6 +13,13 @@ GROUP BY aep_opco, run_date
 ORDER BY run_date DESC
 LIMIT 5;
 
+SELECT run_date, COUNT(*) as cnt, 
+       SUM(CASE WHEN aep_premise_nb IS NOT NULL THEN 1 ELSE 0 END) as with_premise
+FROM xfrm_interval.reading_ivl_nonvee_incr
+WHERE aep_opco = 'oh'
+  AND run_date >= '20260324_120000'
+GROUP BY run_date
+ORDER BY run_date DESC;
 
 
 SELECT 
