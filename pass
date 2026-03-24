@@ -22,77 +22,23 @@ GROUP BY run_date
 ORDER BY run_date DESC;
 
 
-SELECT 
-    serialnumber,
-    aep_usage_dt,
-    aep_channel_id,
-    aep_raw_uom,
-    endtimeperiod,
-    starttimeperiod,
-    value,
-    aep_raw_value,
-    scalarfloat,
-    aep_derived_uom,
-    name_register,
-    aep_srvc_qlty_idntfr,
-    aep_sec_per_intrvl,
-    aep_premise_nb,
-    aep_service_point,
-    aep_srvc_dlvry_id,
-    aep_devicecode,
-    aep_meter_program,
-    aep_acct_cls_cd,
-    aep_acct_type_cd,
-    aep_mtr_pnt_nb,
-    aep_tarf_pnt_nb,
-    aep_endtime_utc,
-    aep_city,
-    aep_zip,
-    aep_state,
-    authority,
-    aep_meter_bucket,
-    hdp_update_user
+1. Upload the fixed script to S3:
+
+
+aws s3 cp pyspark/nonvee_uiq_info_job.py s3://aep-datalake-apps-dev/hdpapp/aep_dl_util_ami_nonvee_info/pyspark/nonvee_uiq_info_job.py
+2. Fix HDFS permissions on the EMR cluster:
+
+
+sudo -u hadoop hadoop fs -chmod -R 777 /tmp/scratch
+3. Rerun the spark-submit:
+
+
+spark-submit --master yarn --deploy-mode client --name nonvee_uiq_info_oh --conf spark.sql.legacy.timeParserPolicy=LEGACY --conf spark.sql.catalog.awsglue=org.apache.iceberg.spark.SparkCatalog --conf spark.sql.catalog.awsglue.catalog-impl=org.apache.iceberg.aws.glue.GlueCatalog --conf spark.sql.catalog.awsglue.warehouse=s3://aep-datalake-consume-dev/iceberg/ --packages com.databricks:spark-xml_2.12:0.14.0 s3://aep-datalake-apps-dev/hdpapp/aep_dl_util_ami_nonvee_info/pyspark/nonvee_uiq_info_job.py -o oh -s "2026-03-19 00:00:00" -e "2026-03-24 23:59:59" -r "2026-03-24 12:00:00"
+4. After the run completes, validate with this query:
+
+
+SELECT serialnumber, aep_usage_dt, aep_premise_nb, aep_service_point, aep_city, aep_state, aep_zip, value, scalarfloat, aep_meter_program, aep_acct_cls_cd, aep_acct_type_cd
 FROM xfrm_interval.reading_ivl_nonvee_incr
-WHERE aep_opco = 'oh'
-  AND run_date = '20260324_121443'
+WHERE run_date >= '20260324_130000'
   AND aep_premise_nb IS NOT NULL
-LIMIT 5;
-Then take a serialnumber from the result and run the same in PROD:
-
-
-SELECT 
-    serialnumber,
-    aep_usage_dt,
-    aep_channel_id,
-    aep_raw_uom,
-    endtimeperiod,
-    starttimeperiod,
-    value,
-    aep_raw_value,
-    scalarfloat,
-    aep_derived_uom,
-    name_register,
-    aep_srvc_qlty_idntfr,
-    aep_sec_per_intrvl,
-    aep_premise_nb,
-    aep_service_point,
-    aep_srvc_dlvry_id,
-    aep_devicecode,
-    aep_meter_program,
-    aep_acct_cls_cd,
-    aep_acct_type_cd,
-    aep_mtr_pnt_nb,
-    aep_tarf_pnt_nb,
-    aep_endtime_utc,
-    aep_city,
-    aep_zip,
-    aep_state,
-    authority,
-    aep_meter_bucket,
-    hdp_update_user
-FROM usage_nonvee.reading_ivl_nonvee_oh
-WHERE aep_usage_dt = '<PASTE_USAGE_DT_FROM_DEV>'
-  AND serialnumber = '<PASTE_SERIAL_FROM_DEV>'
-  AND aep_channel_id = '<PASTE_CHANNEL_FROM_DEV>'
-ORDER BY endtimeperiod
-LIMIT 5;
+LIMIT 10;
