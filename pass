@@ -36,11 +36,12 @@ SELECT
     aep_meter_bucket,
     hdp_update_user
 FROM usage_nonvee.reading_ivl_nonvee_oh
-WHERE aep_usage_dt = '2026-03-24'
+WHERE aep_usage_dt IN ('2026-03-23', '2026-03-24')
   AND aep_premise_nb IS NOT NULL
-  AND hdp_update_user = 'info-insert'
+  AND hdp_insert_dttm >= timestamp '2026-03-24 12:00:00'
 ORDER BY serialnumber, aep_channel_id, endtimeperiod
 LIMIT 5;
+
 
 
 
