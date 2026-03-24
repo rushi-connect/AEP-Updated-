@@ -11,3 +11,7 @@ SELECT
     COUNT(serv_city_ad) AS non_null_city
 FROM stg_nonvee.meter_premise_macs_ami
 WHERE co_cd_ownr IN ('07', '10');
+
+
+
+        F.unix_timestamp(F.concat(F.col("reading.endtime"), F.col("reading.interval_epoch")), "yyyy-MM-dd'T'HH:mm:ssXXX").alias("unix_endtime"),
