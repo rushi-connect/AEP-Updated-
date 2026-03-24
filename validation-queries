@@ -1,0 +1,126 @@
+Validation Queries
+Query 1: Pick 10 sample records from DEV and check all key fields
+
+-- DEV: Get 10 sample records to validate field-by-field against PROD
+SELECT 
+    serialnumber,
+    aep_opco,
+    aep_usage_dt,
+    aep_channel_id,
+    aep_raw_uom,
+    aep_derived_uom,
+    endtimeperiod,
+    starttimeperiod,
+    value,
+    aep_raw_value,
+    scalarfloat,
+    aep_premise_nb,
+    aep_service_point,
+    aep_srvc_dlvry_id,
+    aep_mtr_pnt_nb,
+    aep_tarf_pnt_nb,
+    aep_devicecode,
+    aep_meter_program,
+    aep_srvc_qlty_idntfr,
+    name_register,
+    aep_sec_per_intrvl,
+    aep_endtime_utc,
+    aep_acct_cls_cd,
+    aep_acct_type_cd,
+    aep_city,
+    aep_zip,
+    aep_state,
+    authority,
+    hdp_update_user,
+    aep_meter_bucket
+FROM usage_nonvee.reading_ivl_nonvee_oh
+WHERE aep_usage_dt IN ('2026-03-23', '2026-03-24')
+  AND aep_premise_nb IS NOT NULL
+LIMIT 10;
+Query 2: Take those same 10 records and validate in PROD
+Copy the serialnumber + endtimeperiod + aep_channel_id from above and run in PROD:
+
+
+-- PROD: Validate same records exist with matching values
+SELECT 
+    serialnumber,
+    aep_opco,
+    aep_usage_dt,
+    aep_channel_id,
+    aep_raw_uom,
+    aep_derived_uom,
+    endtimeperiod,
+    starttimeperiod,
+    value,
+    aep_raw_value,
+    scalarfloat,
+    aep_premise_nb,
+    aep_service_point,
+    aep_srvc_dlvry_id,
+    aep_devicecode,
+    aep_meter_program,
+    aep_srvc_qlty_idntfr,
+    name_register,
+    aep_sec_per_intrvl,
+    aep_endtime_utc,
+    aep_acct_cls_cd,
+    aep_acct_type_cd,
+    aep_city,
+    aep_zip,
+    aep_state,
+    authority,
+    hdp_update_user
+FROM usage_nonvee.reading_ivl_nonvee_oh
+WHERE aep_usage_dt IN ('2026-03-23', '2026-03-24')
+  AND serialnumber IN ('<serial1>', '<serial2>', '<serial3>' /* paste from DEV results */)
+ORDER BY serialnumber, endtimeperiod, aep_channel_id;
+Query 3: Aggregate count comparison (run on both DEV and PROD)
+
+-- Compare total counts and unique meter counts per usage date
+SELECT 
+    aep_usage_dt,
+    COUNT(*) AS total_records,
+    COUNT(DISTINCT serialnumber) AS unique_meters,
+    COUNT(DISTINCT aep_channel_id) AS unique_channels,
+    SUM(CASE WHEN aep_premise_nb IS NULL THEN 1 ELSE 0 END) AS null_premise_count,
+    SUM(CASE WHEN aep_derived_uom = 'UNK' THEN 1 ELSE 0 END) AS unknown_uom_count
+FROM usage_nonvee.reading_ivl_nonvee_oh
+WHERE aep_usage_dt IN ('2026-03-23', '2026-03-24')
+GROUP BY aep_usage_dt
+ORDER BY aep_usage_dt;
+Query 4: Validate the incremental table
+
+-- Check the incr table for the same run
+SELECT 
+    serialnumber,
+    aep_opco,
+    aep_usage_dt,
+    aep_channel_id,
+    endtimeperiod,
+    value,
+    aep_raw_value,
+    aep_premise_nb,
+    aep_derived_uom,
+    run_date
+FROM xfrm_interval.reading_ivl_nonvee_incr
+WHERE aep_opco = 'oh'
+  AND run_date >= '20260324'
+LIMIT 10;
+Query 5: Spot-check a single meter end-to-end (pick one serialnumber from Query 1)
+
+-- Full day of readings for one meter - should have 96 intervals for 15-min or 24 for 60-min
+SELECT 
+    serialnumber,
+    aep_channel_id,
+    aep_raw_uom,
+    aep_derived_uom,
+    starttimeperiod,
+    endtimeperiod,
+    value,
+    aep_raw_value,
+    aep_sec_per_intrvl,
+    aep_premise_nb
+FROM usage_nonvee.reading_ivl_nonvee_oh
+WHERE aep_usage_dt = '2026-03-23'
+  AND serialnumber = '<PASTE_ONE_SERIAL>'
+ORDER BY aep_channel_id, endtimeperiod;
