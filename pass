@@ -22,21 +22,15 @@ GROUP BY run_date
 ORDER BY run_date DESC;
 
 
-1. Upload the fixed script to S3:
 
-
-aws s3 cp pyspark/nonvee_uiq_info_job.py s3://aep-datalake-apps-dev/hdpapp/aep_dl_util_ami_nonvee_info/pyspark/nonvee_uiq_info_job.py
 2. Fix HDFS permissions on the EMR cluster:
-
-
 sudo -u hadoop hadoop fs -chmod -R 777 /tmp/scratch
+
 3. Rerun the spark-submit:
+spark-submit --deploy-mode client --packages com.databricks:spark-xml_2.12:0.14.0 --conf spark.sql.extensions=org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions --conf spark.sql.catalog.spark_catalog=org.apache.iceberg.spark.SparkSessionCatalog --conf spark.sql.catalog.spark_catalog.type=glue --conf spark.sql.catalog.spark_catalog.glue.id=889415020100 --conf spark.sql.catalog.spark_catalog.warehouse=s3://aep-datalake-apps-dev/emr/warehouse/nonvee-uiq-info-oh --conf spark.sql.session.timeZone=America/New_York --conf spark.driver.extraJavaOptions=-Duser.timezone=America/New_York --conf spark.executor.extraJavaOptions=-Duser.timezone=America/New_York --conf spark.sql.legacy.timeParserPolicy=LEGACY --driver-cores 4 --driver-memory 32g --conf spark.driver.maxResultSize=16g --executor-cores 1 --executor-memory 5g s3://aep-datalake-apps-dev/hdpapp/aep_dl_util_ami_nonvee_info/pyspark/nonvee_uiq_info_job.py --job_name nonvee-uiq-info-oh --opco oh --data_bucket aep-datalake-work-dev --batch_start_dttm_str "2026-03-24 00:00:00" --batch_end_dttm_str "2026-03-24 13:43:26" --batch_run_dttm_str "2026-03-25 00:00:00"
 
 
-spark-submit --master yarn --deploy-mode client --packages com.databricks:spark-xml_2.12:0.14.0 --conf spark.sql.extensions=org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions --conf spark.sql.catalog.spark_catalog=org.apache.iceberg.spark.SparkSessionCatalog --conf spark.sql.catalog.spark_catalog.type=glue --conf spark.sql.catalog.spark_catalog.glue.id=889415020100 --conf spark.sql.catalog.spark_catalog.warehouse=s3://aep-datalake-apps-dev/emr/warehouse/nonvee-uiq-info-oh --conf spark.sql.session.timeZone=America/New_York --conf spark.driver.extraJavaOptions=-Duser.timezone=America/New_York --conf spark.executor.extraJavaOptions=-Duser.timezone=America/New_York --conf spark.sql.legacy.timeParserPolicy=LEGACY --driver-cores 4 --driver-memory 32g --conf spark.driver.maxResultSize=16g --executor-cores 1 --executor-memory 5g s3://aep-datalake-apps-dev/hdpapp/aep_dl_util_ami_nonvee_info/pyspark/nonvee_uiq_info_job.py --job_name nonvee-uiq-info-oh --opco oh --data_bucket aep-datalake-work-dev --batch_start_dttm_str "2026-03-19 00:00:00" --batch_end_dttm_str "2026-03-24 23:59:59" --batch_run_dttm_str "2026-03-24 12:00:00"
 4. After the run completes, validate with this query:
-
-
 SELECT serialnumber, aep_usage_dt, aep_premise_nb, aep_service_point, aep_city, aep_state, aep_zip, value, scalarfloat, aep_meter_program, aep_acct_cls_cd, aep_acct_type_cd
 FROM xfrm_interval.reading_ivl_nonvee_incr
 WHERE run_date >= '20260324_130000'
