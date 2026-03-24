@@ -1,0 +1,603 @@
+:: loading settings :: url = jar:file:/usr/lib/spark/jars/ivy-2.5.1.jar!/org/apache/ivy/core/settings/ivysettings.xml
+===== starting job =====
+===== started parsing job args =====
+completed parsing in 0:00:00.000827
+===== args [<class 'argparse.Namespace'>]: Namespace(job_name='nonvee-uiq-info-oh', opco='oh', data_bucket='aep-datalake-work-dev', batch_start_dttm_str='2026-03-19 19:07:16', batch_end_dttm_str='2026-03-24 10:45:21', batch_run_dttm_str='2026-03-24 10:45:21') =====
+===== init vars =====
+===== creating spark session =====
+completed creating spark session in 0:00:15.152228
+===== spark application-id: application_1774349020661_0001 =====
+===== batch start dttm: 2026-03-19 19:07:16-04:00 =====
+===== batch end dttm: 2026-03-24 10:45:21-04:00 =====
+===== batch run dttm: 2026-03-24 10:45:21-04:00 =====
+===== batch base prefix: raw/intervals/nonvee/uiq_info/oh =====
+===== batch scratch path: hdfs:///tmp/scratch/03d0f29b-42ec-4bc4-8ae2-661ae47f7fae =====
+===== listing objects in base prefix raw/intervals/nonvee/uiq_info/oh =====
+===== found 56693 objects in 57 pages =====
+completed listing objects in 0:00:07.534767
+===== filtering files =====
+===== selected 3799 files in 7 dirs =====
+completed filtering files in 0:00:00.000011
+===== reading files =====
+===== read 3799 files in 7 dirs =====
+completed reading in 0:00:13.421778
+root
+ |-- _MeterName: string (nullable = true)
+ |-- _UtilDeviceID: string (nullable = true)
+ |-- _MacID: string (nullable = true)
+ |-- IntervalReadData: array (nullable = true)
+ |    |-- element: struct (containsNull = true)
+ |    |    |-- _NumberIntervals: string (nullable = true)
+ |    |    |-- _EndTime: string (nullable = true)
+ |    |    |-- _StartTime: string (nullable = true)
+ |    |    |-- _IntervalLength: string (nullable = true)
+ |    |    |-- Interval: array (nullable = true)
+ |    |    |    |-- element: struct (containsNull = true)
+ |    |    |    |    |-- _EndTime: string (nullable = true)
+ |    |    |    |    |-- _BlockSequenceNumber: string (nullable = true)
+ |    |    |    |    |-- _GatewayCollectedTime: string (nullable = true)
+ |    |    |    |    |-- _IntervalSequenceNumber: string (nullable = true)
+ |    |    |    |    |-- Reading: array (nullable = true)
+ |    |    |    |    |    |-- element: struct (containsNull = true)
+ |    |    |    |    |    |    |-- _Channel: string (nullable = true)
+ |    |    |    |    |    |    |-- _RawValue: string (nullable = true)
+ |    |    |    |    |    |    |-- _Value: string (nullable = true)
+ |    |    |    |    |    |    |-- _UOM: string (nullable = true)
+ |    |    |    |    |    |    |-- _BlockEndValue: string (nullable = true)
+
+===== staging raw data =====
+completed staging in 0:00:47.485083
+root
+ |-- _MeterName: string (nullable = true)
+ |-- _UtilDeviceID: string (nullable = true)
+ |-- _MacID: string (nullable = true)
+ |-- IntervalReadData: array (nullable = true)
+ |    |-- element: struct (containsNull = true)
+ |    |    |-- _NumberIntervals: string (nullable = true)
+ |    |    |-- _EndTime: string (nullable = true)
+ |    |    |-- _StartTime: string (nullable = true)
+ |    |    |-- _IntervalLength: string (nullable = true)
+ |    |    |-- Interval: array (nullable = true)
+ |    |    |    |-- element: struct (containsNull = true)
+ |    |    |    |    |-- _EndTime: string (nullable = true)
+ |    |    |    |    |-- _BlockSequenceNumber: string (nullable = true)
+ |    |    |    |    |-- _GatewayCollectedTime: string (nullable = true)
+ |    |    |    |    |-- _IntervalSequenceNumber: string (nullable = true)
+ |    |    |    |    |-- Reading: array (nullable = true)
+ |    |    |    |    |    |-- element: struct (containsNull = true)
+ |    |    |    |    |    |    |-- _Channel: string (nullable = true)
+ |    |    |    |    |    |    |-- _RawValue: string (nullable = true)
+ |    |    |    |    |    |    |-- _Value: string (nullable = true)
+ |    |    |    |    |    |    |-- _UOM: string (nullable = true)
+ |    |    |    |    |    |    |-- _BlockEndValue: string (nullable = true)
+
+===== counting staged_df records =====
+counted 1846850 record(s) in 334 partition(s)
+completed counting in 0:00:02.027203
+===== reading stg_nonvee.meter_premise_macs_ami =====
+completed reading in 0:00:01.728625
+root
+ |-- prem_nb: string (nullable = true)
+ |-- bill_cnst: string (nullable = true)
+ |-- acct_clas_cd: string (nullable = true)
+ |-- acct_type_cd: string (nullable = true)
+ |-- devc_cd: string (nullable = true)
+ |-- pgm_id_nm: string (nullable = true)
+ |-- sd: string (nullable = false)
+ |-- mfr_devc_ser_nbr: string (nullable = true)
+ |-- mtr_inst_ts: string (nullable = true)
+ |-- mtr_rmvl_ts: string (nullable = true)
+ |-- acct_turn_on_dt: string (nullable = true)
+ |-- acct_turn_off_dt: string (nullable = true)
+ |-- bill_acct_nb: string (nullable = true)
+ |-- mtr_pnt_nb: string (nullable = true)
+ |-- tarf_pnt_nb: string (nullable = true)
+ |-- cmsg_mtr_mult_nb: string (nullable = true)
+ |-- unix_mtr_inst_ts: long (nullable = true)
+ |-- unix_mtr_rmvl_ts: long (nullable = true)
+ |-- unix_acct_turn_on_dt: long (nullable = true)
+ |-- unix_acct_turn_off_dt: long (nullable = true)
+ |-- aep_city: string (nullable = true)
+ |-- aep_zip: string (nullable = true)
+ |-- aep_state: string (nullable = true)
+
+===== reading usage_nonvee.uom_mapping =====
+completed reading in 0:00:00.336780
+root
+ |-- aep_channel_id: string (nullable = true)
+ |-- aep_derived_uom: string (nullable = true)
+ |-- name_register: string (nullable = true)
+ |-- aep_srvc_qlty_idntfr: string (nullable = true)
+ |-- aep_raw_uom: string (nullable = true)
+ |-- value_mltplr_flg: string (nullable = true)
+
+===== Step 1: Rename columns =====
+root
+ |-- metername: string (nullable = true)
+ |-- utildeviceid: string (nullable = true)
+ |-- macid: string (nullable = true)
+ |-- interval_reading: array (nullable = true)
+ |    |-- element: struct (containsNull = true)
+ |    |    |-- _NumberIntervals: string (nullable = true)
+ |    |    |-- _EndTime: string (nullable = true)
+ |    |    |-- _StartTime: string (nullable = true)
+ |    |    |-- _IntervalLength: string (nullable = true)
+ |    |    |-- Interval: array (nullable = true)
+ |    |    |    |-- element: struct (containsNull = true)
+ |    |    |    |    |-- _EndTime: string (nullable = true)
+ |    |    |    |    |-- _BlockSequenceNumber: string (nullable = true)
+ |    |    |    |    |-- _GatewayCollectedTime: string (nullable = true)
+ |    |    |    |    |-- _IntervalSequenceNumber: string (nullable = true)
+ |    |    |    |    |-- Reading: array (nullable = true)
+ |    |    |    |    |    |-- element: struct (containsNull = true)
+ |    |    |    |    |    |    |-- _Channel: string (nullable = true)
+ |    |    |    |    |    |    |-- _RawValue: string (nullable = true)
+ |    |    |    |    |    |    |-- _Value: string (nullable = true)
+ |    |    |    |    |    |    |-- _UOM: string (nullable = true)
+ |    |    |    |    |    |    |-- _BlockEndValue: string (nullable = true)
+
+===== Step 2: 1st EXPLODE (intervals) =====
+root
+ |-- MeterName: string (nullable = true)
+ |-- UtilDeviceID: string (nullable = true)
+ |-- MacID: string (nullable = true)
+ |-- IntervalLength: string (nullable = true)
+ |-- blockstarttime: string (nullable = true)
+ |-- blockendtime: string (nullable = true)
+ |-- NumberIntervals: string (nullable = true)
+ |-- int_endtime: string (nullable = true)
+ |-- int_gatewaycollectedtime: string (nullable = true)
+ |-- int_blocksequencenumber: string (nullable = true)
+ |-- int_intervalsequencenumber: string (nullable = true)
+ |-- int_reading: array (nullable = true)
+ |    |-- element: struct (containsNull = true)
+ |    |    |-- _Channel: string (nullable = true)
+ |    |    |-- _RawValue: string (nullable = true)
+ |    |    |-- _Value: string (nullable = true)
+ |    |    |-- _UOM: string (nullable = true)
+ |    |    |-- _BlockEndValue: string (nullable = true)
+
+===== Step 3: 2nd EXPLODE (readings) =====
+root
+ |-- MeterName: string (nullable = true)
+ |-- UtilDeviceID: string (nullable = true)
+ |-- MacID: string (nullable = true)
+ |-- IntervalLength: string (nullable = true)
+ |-- blockstarttime: string (nullable = true)
+ |-- blockendtime: string (nullable = true)
+ |-- NumberIntervals: string (nullable = true)
+ |-- starttime: string (nullable = true)
+ |-- endtime: string (nullable = true)
+ |-- interval_epoch: string (nullable = true)
+ |-- int_gatewaycollectedtime: string (nullable = true)
+ |-- int_blocksequencenumber: string (nullable = true)
+ |-- int_intervalsequencenumber: string (nullable = true)
+ |-- channel: string (nullable = true)
+ |-- rawvalue: string (nullable = true)
+ |-- value: string (nullable = true)
+ |-- uom: string (nullable = true)
+
+===== Step 4: LEFT JOIN with UOM mapping =====
+root
+ |-- MeterName: string (nullable = true)
+ |-- UtilDeviceID: string (nullable = true)
+ |-- MacID: string (nullable = true)
+ |-- IntervalLength: string (nullable = true)
+ |-- blockstarttime: string (nullable = true)
+ |-- blockendtime: string (nullable = true)
+ |-- NumberIntervals: string (nullable = true)
+ |-- starttime: string (nullable = true)
+ |-- endtime: string (nullable = true)
+ |-- interval_epoch: string (nullable = true)
+ |-- int_gatewaycollectedtime: string (nullable = true)
+ |-- int_blocksequencenumber: string (nullable = true)
+ |-- int_intervalsequencenumber: string (nullable = true)
+ |-- channel: string (nullable = true)
+ |-- rawvalue: string (nullable = true)
+ |-- value: string (nullable = true)
+ |-- uom: string (nullable = true)
+ |-- aep_uom: string (nullable = false)
+ |-- name_register: string (nullable = true)
+ |-- aep_sqi: string (nullable = false)
+ |-- value_mltplr_flg: string (nullable = true)
+ |-- unix_endtime: long (nullable = true)
+
+===== Step 5: LEFT JOIN with MACS =====
+root
+ |-- aep_opco: string (nullable = false)
+ |-- serialnumber: string (nullable = true)
+ |-- utildeviceid: string (nullable = true)
+ |-- macid: string (nullable = true)
+ |-- intervallength: string (nullable = true)
+ |-- blockstarttime: string (nullable = true)
+ |-- blockendtime: string (nullable = true)
+ |-- numberintervals: string (nullable = true)
+ |-- starttime: string (nullable = true)
+ |-- endtime: string (nullable = true)
+ |-- interval_epoch: string (nullable = true)
+ |-- int_gatewaycollectedtime: string (nullable = true)
+ |-- int_blocksequencenumber: string (nullable = true)
+ |-- int_intervalsequencenumber: string (nullable = true)
+ |-- channel: string (nullable = true)
+ |-- aep_raw_value: string (nullable = true)
+ |-- value: string (nullable = true)
+ |-- aep_raw_uom: string (nullable = true)
+ |-- aep_derived_uom: string (nullable = false)
+ |-- name_register: string (nullable = true)
+ |-- aep_srvc_qlty_idntfr: string (nullable = false)
+ |-- aep_premise_nb: string (nullable = true)
+ |-- bill_cnst: string (nullable = true)
+ |-- aep_acct_cls_cd: string (nullable = true)
+ |-- aep_acct_type_cd: string (nullable = true)
+ |-- aep_devicecode: string (nullable = true)
+ |-- aep_meter_program: string (nullable = true)
+ |-- aep_srvc_dlvry_id: string (nullable = true)
+ |-- aep_mtr_pnt_nb: string (nullable = true)
+ |-- aep_tarf_pnt_nb: string (nullable = true)
+ |-- aep_comp_mtr_mltplr: string (nullable = true)
+ |-- aep_mtr_removal_ts: string (nullable = true)
+ |-- aep_mtr_install_ts: string (nullable = true)
+ |-- aep_city: string (nullable = true)
+ |-- aep_zip: string (nullable = true)
+ |-- aep_state: string (nullable = true)
+ |-- hdp_update_user: string (nullable = false)
+ |-- value_mltplr_flg: string (nullable = true)
+ |-- aep_meter_bucket: string (nullable = true)
+
+===== Step 6: STG_VW transformations =====
+root
+ |-- serialnumber: string (nullable = true)
+ |-- source: string (nullable = false)
+ |-- aep_devicecode: string (nullable = true)
+ |-- isvirtual_meter: string (nullable = false)
+ |-- timezoneoffset: string (nullable = true)
+ |-- aep_premise_nb: string (nullable = true)
+ |-- aep_service_point: string (nullable = true)
+ |-- aep_srvc_dlvry_id: string (nullable = true)
+ |-- name_register: string (nullable = true)
+ |-- isvirtual_register: string (nullable = false)
+ |-- aep_derived_uom: string (nullable = false)
+ |-- aep_raw_uom: string (nullable = true)
+ |-- aep_srvc_qlty_idntfr: string (nullable = false)
+ |-- aep_channel_id: string (nullable = true)
+ |-- aep_sec_per_intrvl: integer (nullable = true)
+ |-- aep_meter_alias: string (nullable = true)
+ |-- aep_meter_program: string (nullable = true)
+ |-- aep_usage_type: string (nullable = false)
+ |-- aep_timezone_cd: string (nullable = false)
+ |-- endtimeperiod: string (nullable = true)
+ |-- starttimeperiod: string (nullable = true)
+ |-- value: double (nullable = true)
+ |-- aep_raw_value: string (nullable = true)
+ |-- scalarfloat: string (nullable = true)
+ |-- aep_acct_cls_cd: string (nullable = true)
+ |-- aep_acct_type_cd: string (nullable = true)
+ |-- aep_mtr_pnt_nb: string (nullable = true)
+ |-- aep_tarf_pnt_nb: string (nullable = true)
+ |-- aep_comp_mtr_mltplr: double (nullable = true)
+ |-- aep_endtime_utc: string (nullable = true)
+ |-- aep_mtr_removal_ts: string (nullable = true)
+ |-- aep_mtr_install_ts: string (nullable = true)
+ |-- aep_city: string (nullable = true)
+ |-- aep_zip: string (nullable = true)
+ |-- aep_state: string (nullable = true)
+ |-- hdp_insert_dttm: timestamp (nullable = false)
+ |-- hdp_update_dttm: timestamp (nullable = false)
+ |-- hdp_update_user: string (nullable = false)
+ |-- authority: string (nullable = true)
+ |-- aep_usage_dt: string (nullable = true)
+ |-- data_type: string (nullable = false)
+ |-- aep_opco: string (nullable = false)
+ |-- aep_meter_bucket: string (nullable = true)
+
+===== Step 7: Deduplication + XFRM transformations =====
+root
+ |-- serialnumber: string (nullable = true)
+ |-- source: string (nullable = false)
+ |-- aep_devicecode: string (nullable = true)
+ |-- isvirtual_meter: string (nullable = false)
+ |-- timezoneoffset: string (nullable = true)
+ |-- aep_premise_nb: string (nullable = true)
+ |-- aep_service_point: string (nullable = true)
+ |-- aep_mtr_install_ts: string (nullable = true)
+ |-- aep_mtr_removal_ts: string (nullable = true)
+ |-- aep_srvc_dlvry_id: string (nullable = true)
+ |-- aep_comp_mtr_mltplr: double (nullable = true)
+ |-- name_register: string (nullable = true)
+ |-- isvirtual_register: string (nullable = false)
+ |-- toutier: string (nullable = true)
+ |-- toutiername: string (nullable = true)
+ |-- aep_srvc_qlty_idntfr: string (nullable = false)
+ |-- aep_channel_id: string (nullable = true)
+ |-- aep_raw_uom: string (nullable = true)
+ |-- aep_sec_per_intrvl: double (nullable = true)
+ |-- aep_meter_alias: string (nullable = true)
+ |-- aep_meter_program: string (nullable = true)
+ |-- aep_billable_ind: string (nullable = true)
+ |-- aep_usage_type: string (nullable = false)
+ |-- aep_timezone_cd: string (nullable = false)
+ |-- endtimeperiod: string (nullable = true)
+ |-- starttimeperiod: string (nullable = true)
+ |-- value: float (nullable = true)
+ |-- aep_raw_value: float (nullable = true)
+ |-- scalarfloat: float (nullable = true)
+ |-- aep_data_quality_cd: string (nullable = true)
+ |-- aep_data_validation: string (nullable = true)
+ |-- aep_acct_cls_cd: string (nullable = true)
+ |-- aep_acct_type_cd: string (nullable = true)
+ |-- aep_mtr_pnt_nb: string (nullable = true)
+ |-- aep_tarf_pnt_nb: string (nullable = true)
+ |-- aep_endtime_utc: string (nullable = true)
+ |-- aep_city: string (nullable = true)
+ |-- aep_zip: string (nullable = true)
+ |-- aep_state: string (nullable = true)
+ |-- hdp_update_user: string (nullable = false)
+ |-- hdp_insert_dttm: timestamp (nullable = false)
+ |-- hdp_update_dttm: timestamp (nullable = false)
+ |-- authority: string (nullable = true)
+ |-- aep_derived_uom: string (nullable = false)
+ |-- data_type: string (nullable = false)
+ |-- aep_opco: string (nullable = false)
+ |-- aep_usage_dt: string (nullable = true)
+ |-- aep_meter_bucket: string (nullable = true)
+
+===== staging xfrm_df =====
+completed writing in 0:00:47.203718
+root
+ |-- serialnumber: string (nullable = true)
+ |-- source: string (nullable = true)
+ |-- aep_devicecode: string (nullable = true)
+ |-- isvirtual_meter: string (nullable = true)
+ |-- timezoneoffset: string (nullable = true)
+ |-- aep_premise_nb: string (nullable = true)
+ |-- aep_service_point: string (nullable = true)
+ |-- aep_mtr_install_ts: string (nullable = true)
+ |-- aep_mtr_removal_ts: string (nullable = true)
+ |-- aep_srvc_dlvry_id: string (nullable = true)
+ |-- aep_comp_mtr_mltplr: double (nullable = true)
+ |-- name_register: string (nullable = true)
+ |-- isvirtual_register: string (nullable = true)
+ |-- toutier: string (nullable = true)
+ |-- toutiername: string (nullable = true)
+ |-- aep_srvc_qlty_idntfr: string (nullable = true)
+ |-- aep_channel_id: string (nullable = true)
+ |-- aep_raw_uom: string (nullable = true)
+ |-- aep_sec_per_intrvl: double (nullable = true)
+ |-- aep_meter_alias: string (nullable = true)
+ |-- aep_meter_program: string (nullable = true)
+ |-- aep_billable_ind: string (nullable = true)
+ |-- aep_usage_type: string (nullable = true)
+ |-- aep_timezone_cd: string (nullable = true)
+ |-- endtimeperiod: string (nullable = true)
+ |-- starttimeperiod: string (nullable = true)
+ |-- value: float (nullable = true)
+ |-- aep_raw_value: float (nullable = true)
+ |-- scalarfloat: float (nullable = true)
+ |-- aep_data_quality_cd: string (nullable = true)
+ |-- aep_data_validation: string (nullable = true)
+ |-- aep_acct_cls_cd: string (nullable = true)
+ |-- aep_acct_type_cd: string (nullable = true)
+ |-- aep_mtr_pnt_nb: string (nullable = true)
+ |-- aep_tarf_pnt_nb: string (nullable = true)
+ |-- aep_endtime_utc: string (nullable = true)
+ |-- aep_city: string (nullable = true)
+ |-- aep_zip: string (nullable = true)
+ |-- aep_state: string (nullable = true)
+ |-- hdp_update_user: string (nullable = true)
+ |-- hdp_insert_dttm: timestamp (nullable = true)
+ |-- hdp_update_dttm: timestamp (nullable = true)
+ |-- authority: string (nullable = true)
+ |-- aep_derived_uom: string (nullable = true)
+ |-- data_type: string (nullable = true)
+ |-- aep_opco: string (nullable = true)
+ |-- aep_meter_bucket: string (nullable = true)
+ |-- aep_usage_dt: date (nullable = true)
+
+===== counting staged_xfrm_df records =====
+counted 136358978 record(s) in 361 partition(s)
+completed counting in 0:00:00.828187
+===== dedup staged_xfrm_df =====
+===== staging deduped_xfrm_df =====
+completed writing in 0:00:16.276158
+root
+ |-- serialnumber: string (nullable = true)
+ |-- source: string (nullable = true)
+ |-- aep_devicecode: string (nullable = true)
+ |-- isvirtual_meter: string (nullable = true)
+ |-- timezoneoffset: string (nullable = true)
+ |-- aep_premise_nb: string (nullable = true)
+ |-- aep_service_point: string (nullable = true)
+ |-- aep_mtr_install_ts: string (nullable = true)
+ |-- aep_mtr_removal_ts: string (nullable = true)
+ |-- aep_srvc_dlvry_id: string (nullable = true)
+ |-- aep_comp_mtr_mltplr: double (nullable = true)
+ |-- name_register: string (nullable = true)
+ |-- isvirtual_register: string (nullable = true)
+ |-- toutier: string (nullable = true)
+ |-- toutiername: string (nullable = true)
+ |-- aep_srvc_qlty_idntfr: string (nullable = true)
+ |-- aep_channel_id: string (nullable = true)
+ |-- aep_raw_uom: string (nullable = true)
+ |-- aep_sec_per_intrvl: double (nullable = true)
+ |-- aep_meter_alias: string (nullable = true)
+ |-- aep_meter_program: string (nullable = true)
+ |-- aep_billable_ind: string (nullable = true)
+ |-- aep_usage_type: string (nullable = true)
+ |-- aep_timezone_cd: string (nullable = true)
+ |-- endtimeperiod: string (nullable = true)
+ |-- starttimeperiod: string (nullable = true)
+ |-- value: float (nullable = true)
+ |-- aep_raw_value: float (nullable = true)
+ |-- scalarfloat: float (nullable = true)
+ |-- aep_data_quality_cd: string (nullable = true)
+ |-- aep_data_validation: string (nullable = true)
+ |-- aep_acct_cls_cd: string (nullable = true)
+ |-- aep_acct_type_cd: string (nullable = true)
+ |-- aep_mtr_pnt_nb: string (nullable = true)
+ |-- aep_tarf_pnt_nb: string (nullable = true)
+ |-- aep_endtime_utc: string (nullable = true)
+ |-- aep_city: string (nullable = true)
+ |-- aep_zip: string (nullable = true)
+ |-- aep_state: string (nullable = true)
+ |-- hdp_update_user: string (nullable = true)
+ |-- hdp_insert_dttm: timestamp (nullable = true)
+ |-- hdp_update_dttm: timestamp (nullable = true)
+ |-- authority: string (nullable = true)
+ |-- aep_derived_uom: string (nullable = true)
+ |-- data_type: string (nullable = true)
+ |-- aep_opco: string (nullable = true)
+ |-- aep_meter_bucket: string (nullable = true)
+ |-- aep_usage_dt: date (nullable = true)
+
+===== counting staged_deduped_xfrm_df records =====
+counted 136358962 record(s) in 343 partition(s)
+completed counting in 0:00:00.537791
+===== Step 9: MERGE into consume layer =====
+Distinct usage dates: '2026-03-23', '2026-03-24'
+===== writing with =====
+
+MERGE INTO usage_nonvee.reading_ivl_nonvee_oh AS t
+USING interval_data_xfrm_oh_vw AS s
+   ON t.aep_usage_dt in ('2026-03-23', '2026-03-24')
+  AND t.aep_usage_dt = s.aep_usage_dt
+  AND t.aep_meter_bucket = s.aep_meter_bucket
+  AND t.serialnumber = s.serialnumber
+  AND t.aep_channel_id = s.aep_channel_id
+  AND t.aep_raw_uom = s.aep_raw_uom
+  AND t.endtimeperiod = s.endtimeperiod
+ WHEN MATCHED THEN UPDATE SET
+      t.aep_srvc_qlty_idntfr = s.aep_srvc_qlty_idntfr
+    , t.aep_channel_id = s.aep_channel_id
+    , t.aep_sec_per_intrvl = s.aep_sec_per_intrvl
+    , t.aep_meter_alias = s.aep_meter_alias
+    , t.aep_meter_program = s.aep_meter_program
+    , t.aep_usage_type = s.aep_usage_type
+    , t.aep_timezone_cd = s.aep_timezone_cd
+    , t.endtimeperiod = s.endtimeperiod
+    , t.starttimeperiod = s.starttimeperiod
+    , t.value = s.value
+    , t.aep_raw_value = s.aep_raw_value
+    , t.scalarfloat = s.scalarfloat
+    , t.aep_acct_cls_cd = s.aep_acct_cls_cd
+    , t.aep_acct_type_cd = s.aep_acct_type_cd
+    , t.aep_mtr_pnt_nb = s.aep_mtr_pnt_nb
+    , t.aep_comp_mtr_mltplr = s.aep_comp_mtr_mltplr
+    , t.aep_endtime_utc = s.aep_endtime_utc
+    , t.aep_mtr_removal_ts = s.aep_mtr_removal_ts
+    , t.aep_mtr_install_ts = s.aep_mtr_install_ts
+    , t.aep_city = s.aep_city
+    , t.aep_zip = s.aep_zip
+    , t.aep_state = s.aep_state
+    , t.hdp_update_user = 'info-update'
+    , t.hdp_update_dttm = s.hdp_update_dttm
+    , t.authority = s.authority
+ WHEN NOT MATCHED THEN INSERT (
+      serialnumber
+    , source
+    , aep_devicecode
+    , isvirtual_meter
+    , timezoneoffset
+    , aep_premise_nb
+    , aep_service_point
+    , aep_srvc_dlvry_id
+    , name_register
+    , isvirtual_register
+    , toutier
+    , toutiername
+    , aep_derived_uom
+    , aep_raw_uom
+    , aep_srvc_qlty_idntfr
+    , aep_channel_id
+    , aep_sec_per_intrvl
+    , aep_meter_alias
+    , aep_meter_program
+    , aep_billable_ind
+    , aep_usage_type
+    , aep_timezone_cd
+    , endtimeperiod
+    , starttimeperiod
+    , value
+    , aep_raw_value
+    , scalarfloat
+    , aep_data_quality_cd
+    , aep_data_validation
+    , aep_acct_cls_cd
+    , aep_acct_type_cd
+    , aep_mtr_pnt_nb
+    , aep_tarf_pnt_nb
+    , aep_comp_mtr_mltplr
+    , aep_endtime_utc
+    , aep_mtr_removal_ts
+    , aep_mtr_install_ts
+    , aep_city
+    , aep_zip
+    , aep_state
+    , hdp_update_user
+    , hdp_insert_dttm
+    , hdp_update_dttm
+    , authority
+    , aep_opco
+    , aep_usage_dt
+    , aep_meter_bucket
+    ) VALUES (
+      s.serialnumber
+    , s.source
+    , s.aep_devicecode
+    , s.isvirtual_meter
+    , s.timezoneoffset
+    , s.aep_premise_nb
+    , s.aep_service_point
+    , s.aep_srvc_dlvry_id
+    , s.name_register
+    , s.isvirtual_register
+    , s.toutier
+    , s.toutiername
+    , s.aep_derived_uom
+    , s.aep_raw_uom
+    , s.aep_srvc_qlty_idntfr
+    , s.aep_channel_id
+    , s.aep_sec_per_intrvl
+    , s.aep_meter_alias
+    , s.aep_meter_program
+    , s.aep_billable_ind
+    , s.aep_usage_type
+    , s.aep_timezone_cd
+    , s.endtimeperiod
+    , s.starttimeperiod
+    , s.value
+    , s.aep_raw_value
+    , s.scalarfloat
+    , s.aep_data_quality_cd
+    , s.aep_data_validation
+    , s.aep_acct_cls_cd
+    , s.aep_acct_type_cd
+    , s.aep_mtr_pnt_nb
+    , s.aep_tarf_pnt_nb
+    , s.aep_comp_mtr_mltplr
+    , s.aep_endtime_utc
+    , s.aep_mtr_removal_ts
+    , s.aep_mtr_install_ts
+    , s.aep_city
+    , s.aep_zip
+    , s.aep_state
+    , 'info-insert'
+    , s.hdp_insert_dttm
+    , s.hdp_update_dttm
+    , s.authority
+    , s.aep_opco
+    , s.aep_usage_dt
+    , s.aep_meter_bucket
+    )
+
+completed writing in 0:00:55.906947
+===== Step 10: DELETE old + INSERT into downstream table xfrm_interval.reading_ivl_nonvee_incr =====
+===== Executing deletion query: 
+        DELETE FROM xfrm_interval.reading_ivl_nonvee_incr
+        WHERE aep_opco = 'oh' AND run_date < '20260316_064934'
+         =====
+===== Data older than 8 days for OPCO 'oh' deleted successfully. =====
+===== writing to xfrm_interval.reading_ivl_nonvee_incr with append() =====
+completed writing in 0:01:13.723792
+===== Data is successfully appended on table: xfrm_interval.reading_ivl_nonvee_incr =====
+Deleting HDFS path: hdfs:/tmp/scratch/03d0f29b-42ec-4bc4-8ae2-661ae47f7fae
+completed job in 0:04:47.333735
