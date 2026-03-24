@@ -1,2 +1,13 @@
 s398375
 Twilight=8308868732
+
+
+SELECT 
+    COUNT(*) AS total_rows,
+    COUNT(DISTINCT mfr_devc_ser_nbr) AS unique_meters,
+    COUNT(DISTINCT co_cd_ownr) AS unique_opcos,
+    COUNT(pgm_id_nm) AS non_null_meter_program,
+    COUNT(acct_clas_cd) AS non_null_acct_cls,
+    COUNT(serv_city_ad) AS non_null_city
+FROM stg_nonvee.meter_premise_macs_ami
+WHERE co_cd_ownr IN ('07', '10');
