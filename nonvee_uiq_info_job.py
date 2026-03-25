@@ -248,6 +248,17 @@ def main():
         data_file_ext=data_file_ext,
     )
 
+    # TODO: TEMP - limit to 10 files for testing, remove after testing
+    _limited_map = {}
+    _remaining = 10
+    for _k, _v in filtered_data_files_map.items():
+        if _remaining <= 0:
+            break
+        _limited_map[_k] = _v[:_remaining]
+        _remaining -= len(_limited_map[_k])
+    filtered_data_files_map = _limited_map
+    print(f'===== TEMP: limited to {sum(len(f) for f in filtered_data_files_map.values())} files for testing =====')
+
     files_count = sum(len(f) for f in filtered_data_files_map.values())
     if files_count == 0:
         print(f'0 files selected. exiting ...')
