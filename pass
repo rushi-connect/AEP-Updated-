@@ -21,6 +21,21 @@ WHERE aep_opco = 'oh'
 GROUP BY run_date
 ORDER BY run_date DESC;
 
+spark = SparkSession.builder \
+    .appName(job_name + '-debug') \
+    .config('spark.jars.packages', 'com.databricks:spark-xml_2.12:0.18.0') \
+    .config('spark.sql.extensions', 'org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions') \
+    .config('spark.sql.catalog.spark_catalog', 'org.apache.iceberg.spark.SparkSessionCatalog') \
+    .config('spark.sql.catalog.spark_catalog.type', 'glue') \
+    .config('spark.sql.session.timeZone', 'America/New_York') \
+    .config('spark.sql.legacy.timeParserPolicy', 'LEGACY') \
+    .enableHiveSupport() \
+    .getOrCreate()
+
+print(f'Spark application-id: {spark.sparkContext.applicationId}')
+print(f'Spark version: {spark.version}')
+
+
 ----------------------------
     # TODO: TEMP - limit to 10 files for testing, remove after testing
     _limited_map = {}
