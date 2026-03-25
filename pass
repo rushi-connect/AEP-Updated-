@@ -5,54 +5,25 @@ Twilight=8308868732
 spark-submit --deploy-mode client --packages com.databricks:spark-xml_2.12:0.18.0 --conf spark.sql.extensions=org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions --conf spark.sql.catalog.spark_catalog=org.apache.iceberg.spark.SparkSessionCatalog --conf spark.sql.catalog.spark_catalog.type=glue --conf spark.sql.catalog.spark_catalog.glue.id=889415020100 --conf spark.sql.catalog.spark_catalog.warehouse=s3://aep-datalake-apps-dev/emr/warehouse/nonvee-uiq-info-oh --conf spark.sql.session.timeZone=America/New_York --conf spark.driver.extraJavaOptions=-Duser.timezone=America/New_York --conf spark.executor.extraJavaOptions=-Duser.timezone=America/New_York --conf spark.sql.legacy.timeParserPolicy=LEGACY --driver-cores 4 --driver-memory 32g --conf spark.driver.maxResultSize=16g --executor-cores 1 --executor-memory 5g s3://aep-datalake-apps-dev/hdpapp/aep_dl_util_ami_nonvee_info/pyspark/nonvee_uiq_info_job.py --job_name nonvee-uiq-info-oh --opco oh --data_bucket aep-datalake-work-dev --batch_start_dttm_str "2026-03-24 00:00:00" --batch_end_dttm_str "2026-03-24 13:43:26" --batch_run_dttm_str "2026-03-24 13:43:26"
 
 
-Got it. So your run is:
-
-batch start: 2026-03-24 00:00:00
-batch end: 2026-03-24 10:45:21
-So the data will be for aep_usage_dt = '2026-03-23' or '2026-03-24'.
-
-DEV (Spark SQL on EMR):
-
-
-SELECT serialnumber, aep_usage_dt, aep_channel_id, endtimeperiod, value, scalarfloat, 
-       aep_premise_nb, aep_service_point, aep_acct_cls_cd, aep_acct_type_cd, 
-       aep_devicecode, aep_meter_program, aep_srvc_dlvry_id, aep_mtr_pnt_nb, 
-       aep_tarf_pnt_nb, aep_city, aep_zip, aep_state, authority, run_date
-FROM xfrm_interval.reading_ivl_nonvee_incr
-WHERE run_date = (SELECT MAX(run_date) FROM xfrm_interval.reading_ivl_nonvee_incr)
-LIMIT 20
+spark.sql("""
+    SELECT serialnumber, aep_usage_dt, aep_channel_id, endtimeperiod, value, scalarfloat,
+           aep_premise_nb, aep_service_point, aep_acct_cls_cd, aep_acct_type_cd,
+           aep_devicecode, aep_meter_program, aep_srvc_dlvry_id, aep_mtr_pnt_nb,
+           aep_tarf_pnt_nb, aep_city, aep_zip, aep_state, authority, run_date
+    FROM xfrm_interval.reading_ivl_nonvee_incr
+    WHERE aep_opco = 'pso'
+      AND run_date = (SELECT MAX(run_date) FROM xfrm_interval.reading_ivl_nonvee_incr WHERE aep_opco = 'pso')
+    LIMIT 20
+""").show(truncate=False)
 PROD (Athena) — use a serialnumber from DEV result:
 
 
-SELECT serialnumber, aep_usage_dt, aep_channel_id, endtimeperiod, value, scalarfloat, 
-       aep_premise_nb, aep_service_point, aep_acct_cls_cd, aep_acct_type_cd, 
-       aep_devicecode, aep_meter_program, aep_srvc_dlvry_id, aep_mtr_pnt_nb, 
+SELECT serialnumber, aep_usage_dt, aep_channel_id, endtimeperiod, value, scalarfloat,
+       aep_premise_nb, aep_service_point, aep_acct_cls_cd, aep_acct_type_cd,
+       aep_devicecode, aep_meter_program, aep_srvc_dlvry_id, aep_mtr_pnt_nb,
        aep_tarf_pnt_nb, aep_city, aep_zip, aep_state, authority
-FROM usage_nonvee.reading_ivl_nonvee_oh
-WHERE aep_usage_dt IN ('2026-03-23', '2026-03-24')
+FROM usage_nonvee.reading_ivl_nonvee_pso
+WHERE aep_usage_dt IN ('2026-03-19','2026-03-20','2026-03-21','2026-03-22','2026-03-23','2026-03-24')
   AND serialnumber = '<METER_FROM_DEV>'
 ORDER BY aep_channel_id, endtimeperiod
 LIMIT 20
-
-
-# DEV — Check latest records from xfrm incremental table
-spark.sql("""
-    SELECT serialnumber, aep_usage_dt, aep_channel_id, endtimeperiod, value, scalarfloat, 
-           aep_premise_nb, aep_service_point, aep_acct_cls_cd, aep_acct_type_cd, 
-           aep_devicecode, aep_meter_program, aep_srvc_dlvry_id, aep_mtr_pnt_nb, 
-           aep_tarf_pnt_nb, aep_city, aep_zip, aep_state, authority, run_date
-    FROM xfrm_interval.reading_ivl_nonvee_incr
-    WHERE run_date = (SELECT MAX(run_date) FROM xfrm_interval.reading_ivl_nonvee_incr)
-    LIMIT 20
-""").show(truncate=False)
-
-# DEV — Check consume table (Iceberg) for same date range
-spark.sql("""
-    SELECT serialnumber, aep_usage_dt, aep_channel_id, endtimeperiod, value, scalarfloat, 
-           aep_premise_nb, aep_service_point, aep_acct_cls_cd, aep_acct_type_cd, 
-           aep_devicecode, aep_meter_program, aep_srvc_dlvry_id, aep_mtr_pnt_nb, 
-           aep_tarf_pnt_nb, aep_city, aep_zip, aep_state, authority
-    FROM usage_nonvee.reading_ivl_nonvee_oh
-    WHERE aep_usage_dt IN ('2026-03-23', '2026-03-24')
-    LIMIT 20
-""").show(truncate=False)
