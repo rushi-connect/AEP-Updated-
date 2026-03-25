@@ -500,6 +500,14 @@ def main():
     )
     interval_data_files_src_vw_df.printSchema()
 
+    # DEBUG: Show unix_endtime values before MACS join
+    print('===== DEBUG: unix_endtime values (line 499 output) =====')
+    interval_data_files_src_vw_df.select(
+        "MeterName", "endtime", "interval_epoch",
+        F.concat(F.col("endtime"), F.col("interval_epoch")).alias("concat_endtime_epoch"),
+        "unix_endtime"
+    ).show(20, truncate=False)
+
     ###############################################################################
     # Reference: stg_nonvee.interval_data_files_{opco}_stg
     # Source: scripts/stage_interval_xml_files.sh (Lines 194-272)
@@ -567,6 +575,17 @@ def main():
         F.substring(F.trim(F.col("src.MeterName")), -2, 2).cast("string").alias("aep_meter_bucket"),
     )
     interval_data_files_stg_df.printSchema()
+
+    # DEBUG: Print MACS columns to verify they are populated
+    print('===== DEBUG: MACS join — columns from MACS table =====')
+    interval_data_files_stg_df.select(
+        "serialnumber", "endtime", "aep_premise_nb", "bill_cnst",
+        "aep_acct_cls_cd", "aep_acct_type_cd", "aep_devicecode",
+        "aep_meter_program", "aep_srvc_dlvry_id", "aep_mtr_pnt_nb",
+        "aep_tarf_pnt_nb", "aep_comp_mtr_mltplr",
+        "aep_mtr_install_ts", "aep_mtr_removal_ts",
+        "aep_city", "aep_zip", "aep_state"
+    ).show(20, truncate=False)
 
     #######################################################################################################
     # Source: stg_nonvee.interval_data_files_{opco}_stg_vw.ddl
