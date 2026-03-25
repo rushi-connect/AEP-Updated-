@@ -27,3 +27,15 @@ WHERE aep_usage_dt IN ('2026-03-19','2026-03-20','2026-03-21','2026-03-22','2026
   AND serialnumber = '<METER_FROM_DEV>'
 ORDER BY aep_channel_id, endtimeperiod
 LIMIT 20
+
+
+SELECT serialnumber, aep_usage_dt, aep_channel_id, endtimeperiod, value, scalarfloat,
+       aep_premise_nb, aep_service_point, aep_acct_cls_cd, aep_acct_type_cd,
+       aep_devicecode, aep_meter_program, aep_srvc_dlvry_id, aep_mtr_pnt_nb,
+       aep_tarf_pnt_nb, aep_city, aep_zip, aep_state, authority
+FROM usage_nonvee.reading_ivl_nonvee_pso
+WHERE aep_usage_dt = '2026-03-16'
+  AND serialnumber = '766183667'
+  AND aep_channel_id = '102'
+ORDER BY endtimeperiod
+LIMIT 20
