@@ -52,3 +52,21 @@ SELECT serialnumber, source, aep_devicecode, isvirtual_meter, timezoneoffset,
 FROM usage_nonvee.reading_ivl_nonvee_oh
 WHERE aep_usage_dt IN ('2026-03-23', '2026-03-24')
 LIMIT 150
+
+
+SELECT serialnumber, source, aep_devicecode, isvirtual_meter, timezoneoffset,
+       aep_premise_nb, aep_service_point, aep_mtr_install_ts, aep_mtr_removal_ts,
+       aep_srvc_dlvry_id, aep_comp_mtr_mltplr, name_register, isvirtual_register,
+       toutier, toutiername, aep_derived_uom, aep_raw_uom, aep_srvc_qlty_idntfr,
+       aep_channel_id, aep_sec_per_intrvl, aep_meter_alias, aep_meter_program,
+       aep_billable_ind, aep_usage_type, aep_timezone_cd, endtimeperiod, starttimeperiod,
+       value, aep_raw_value, scalarfloat, aep_data_quality_cd, aep_data_validation,
+       aep_acct_cls_cd, aep_acct_type_cd, aep_mtr_pnt_nb, aep_tarf_pnt_nb,
+       aep_endtime_utc, aep_city, aep_zip, aep_state, hdp_update_user,
+       hdp_insert_dttm, hdp_update_dttm, authority, aep_opco, aep_usage_dt, aep_meter_bucket
+FROM usage_nonvee.reading_ivl_nonvee_oh
+WHERE aep_usage_dt = '2026-03-23'
+  AND serialnumber IN ('645799097', '881613570', '992084273')
+ORDER BY serialnumber, aep_channel_id, endtimeperiod
+LIMIT 150
+
