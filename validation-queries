@@ -128,8 +128,8 @@ LIMIT 100;
 -- consume table
 select count(*) from usage_nonvee.reading_ivl_nonvee_oh
 where aep_usage_dt = '2026-03-27'
-and serialnumber = '<serial_number>'
--- and aep_endtime_utc = '<epoch>'
+and serialnumber = '913483772>'
+-- and aep_endtime_utc = '1774584900'
 limit 10
 To first pick a serial number from your data:
 
