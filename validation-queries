@@ -1,139 +1,122 @@
-Here's the UAT validation plan with exact queries:
-
-1. Record Count Verification (xfrm incr table)
+1. Total record count in consume table for today's usage dates:
 
 
-SELECT aep_opco, run_date, aep_usage_dt, COUNT(*) as record_count
-FROM xfrm_interval.reading_ivl_nonvee_incr
-WHERE run_date = '20260326_111146'
-GROUP BY aep_opco, run_date, aep_usage_dt
-ORDER BY aep_usage_dt
-Screenshot: Shows total records loaded per usage date.
-
-2. NULL Check — Previously NULL Columns (BEFORE vs AFTER fix)
-
-
-SELECT 
-  COUNT(*) as total_records,
-  COUNT(aep_premise_nb) as premise_populated,
-  COUNT(aep_service_point) as svc_point_populated,
-  COUNT(scalarfloat) as scalarfloat_populated,
-  COUNT(aep_acct_cls_cd) as acct_cls_populated,
-  COUNT(aep_devicecode) as devicecode_populated,
-  COUNT(aep_meter_program) as mtr_pgm_populated,
-  COUNT(aep_city) as city_populated,
-  COUNT(aep_zip) as zip_populated,
-  COUNT(aep_state) as state_populated,
-  COUNT(authority) as authority_populated
-FROM xfrm_interval.reading_ivl_nonvee_incr
-WHERE run_date = '20260326_111146'
-  AND aep_opco = 'oh'
-Screenshot: Proves previously NULL columns are now populated. Count should match total_records (or close to it).
-
-3. Sample Records — DEV (5 records, all columns)
-
-
-SELECT serialnumber, aep_usage_dt, aep_channel_id, endtimeperiod, value, scalarfloat,
-       aep_premise_nb, aep_service_point, aep_acct_cls_cd, aep_acct_type_cd,
-       aep_devicecode, aep_meter_program, aep_srvc_dlvry_id, aep_mtr_pnt_nb,
-       aep_tarf_pnt_nb, aep_endtime_utc, aep_city, aep_zip, aep_state, authority
-FROM xfrm_interval.reading_ivl_nonvee_incr
-WHERE run_date = '20260326_111146'
-  AND aep_opco = 'oh'
-  AND aep_premise_nb IS NOT NULL
-LIMIT 5
-Screenshot: Shows DEV data with all columns populated.
-
-4. Same Records — PROD (use serialnumber from above)
-
-
-SELECT serialnumber, aep_usage_dt, aep_channel_id, endtimeperiod, value, scalarfloat,
-       aep_premise_nb, aep_service_point, aep_acct_cls_cd, aep_acct_type_cd,
-       aep_devicecode, aep_meter_program, aep_srvc_dlvry_id, aep_mtr_pnt_nb,
-       aep_tarf_pnt_nb, aep_endtime_utc, aep_city, aep_zip, aep_state, authority
+SELECT aep_usage_dt, COUNT(*) as record_count
 FROM usage_nonvee.reading_ivl_nonvee_oh
-WHERE aep_usage_dt IN ('2026-03-23','2026-03-24')
-  AND serialnumber = '<METER_FROM_QUERY_3>'
-ORDER BY aep_channel_id, endtimeperiod
-LIMIT 5
-Screenshot: Side-by-side comparison with DEV — all values should match.
-
-5. Consume Table Validation (Iceberg — DEV)
+WHERE aep_usage_dt IN ('2026-03-27', '2026-03-26')
+  AND aep_opco = 'oh'
+GROUP BY aep_usage_dt
+ORDER BY aep_usage_dt;
+2. Total record count (should be close to 259,616,581 after dedup):
 
 
-SELECT serialnumber, aep_usage_dt, aep_channel_id, endtimeperiod, value,
-       aep_premise_nb, aep_service_point, aep_city, aep_state, authority
+SELECT COUNT(*) as total_records
 FROM usage_nonvee.reading_ivl_nonvee_oh
-WHERE aep_usage_dt IN ('2026-03-23','2026-03-24')
-  AND aep_premise_nb IS NOT NULL
-LIMIT 5
-Screenshot: Proves consume (Iceberg) table also has populated columns after MERGE.
-
-6. Old Broken Run vs Fixed Run Comparison
+WHERE aep_usage_dt IN ('2026-03-27', '2026-03-26')
+  AND aep_opco = 'oh';
+3. Verify incremental table has data:
 
 
-SELECT run_date,
-       COUNT(*) as total,
-       COUNT(aep_premise_nb) as premise_populated,
-       ROUND(COUNT(aep_premise_nb)*100.0/COUNT(*), 2) as match_pct
+SELECT aep_opco, COUNT(*) as record_count
 FROM xfrm_interval.reading_ivl_nonvee_incr
 WHERE aep_opco = 'oh'
-  AND run_date IN ('20260324_121443', '20260326_111146')
-GROUP BY run_date
+GROUP BY aep_opco;
+4. Check distinct serial numbers (meters):
+
+
+SELECT COUNT(DISTINCT serialnumber) as distinct_meters
+FROM usage_nonvee.reading_ivl_nonvee_oh
+WHERE aep_usage_dt IN ('2026-03-27', '2026-03-26')
+  AND aep_opco = 'oh';
+5. Sample data check (top 10 rows):
+
+
+SELECT serialnumber, aep_opco, aep_usage_dt, endtimeperiod, starttimeperiod,
+       value, aep_derived_uom, aep_raw_uom, aep_channel_id, aep_meter_bucket
+FROM usage_nonvee.reading_ivl_nonvee_oh
+WHERE aep_usage_dt = '2026-03-27'
+  AND aep_opco = 'oh'
+LIMIT 10;
+6. Check for NULL serial numbers (data quality):
+
+
+SELECT COUNT(*) as null_serial_count
+FROM usage_nonvee.reading_ivl_nonvee_oh
+WHERE aep_usage_dt IN ('2026-03-27', '2026-03-26')
+  AND aep_opco = 'oh'
+  AND serialnumber IS NULL;
+7. Insert vs Update split (hdp_update_user):
+
+
+SELECT hdp_update_user, COUNT(*) as record_count
+FROM usage_nonvee.reading_ivl_nonvee_oh
+WHERE aep_usage_dt IN ('2026-03-27', '2026-03-26')
+  AND aep_opco = 'oh'
+GROUP BY hdp_update_user;
+8. Verify old data was deleted from incremental table (older than 8 days):
+
+
+SELECT MIN(run_date) as oldest_run_date, MAX(run_date) as latest_run_date
+FROM xfrm_interval.reading_ivl_nonvee_incr
+WHERE aep_opco = 'oh';
+9. Check UOM distribution:
+
+
+SELECT aep_derived_uom, aep_raw_uom, COUNT(*) as cnt
+FROM usage_nonvee.reading_ivl_nonvee_oh
+WHERE aep_usage_dt IN ('2026-03-27', '2026-03-26')
+  AND aep_opco = 'oh'
+GROUP BY aep_derived_uom, aep_raw_uom
+ORDER BY cnt DESC;
+10. Meter bucket distribution:
+
+
+SELECT aep_meter_bucket, COUNT(*) as cnt
+FROM usage_nonvee.reading_ivl_nonvee_oh
+WHERE aep_usage_dt IN ('2026-03-27', '2026-03-26')
+  AND aep_opco = 'oh'
+GROUP BY aep_meter_bucket
+ORDER BY cnt DESC;
 
 
 
 
 
 
+-----------------------------------------------------------------------------------------------------------------------
+
+Prod - Incremental table (reading_ivl_nonvee_incr):
 
 
+SELECT
+    serialnumber, aep_usage_dt, aep_derived_uom, aep_channel_id,
+    aep_raw_value, value, aep_service_point, aep_premise_nb
+FROM xfrm_interval.reading_ivl_nonvee_incr
+WHERE ((hdp_update_dttm >= TIMESTAMP '2026-03-27 00:00:00' AND hdp_update_dttm < TIMESTAMP '2026-03-28 00:00:00')
+    OR (hdp_insert_dttm >= TIMESTAMP '2026-03-27 00:00:00' AND hdp_insert_dttm < TIMESTAMP '2026-03-28 00:00:00'))
+  AND aep_opco = 'oh'
+-- AND serialnumber = '<serial_number>'
+-- AND aep_endtime_utc = '<epoch>'
+ORDER BY serialnumber, aep_channel_id, endtimeperiod;
+Dev - Incremental table (reading_ivl_nonvee_incr):
 
 
+SELECT *
+FROM xfrm_interval.reading_ivl_nonvee_incr
+WHERE ((hdp_update_dttm >= TIMESTAMP '2026-03-27 00:00:00')
+    OR (hdp_insert_dttm >= TIMESTAMP '2026-03-27 00:00:00'))
+  AND aep_opco = 'oh'
+-- AND serialnumber = '<serial_number>'
+-- AND aep_endtime_utc = '<epoch>'
+ORDER BY serialnumber, aep_channel_id, endtimeperiod;
+Dev - Consume table (reading_ivl_nonvee_oh):
 
 
-
-
-
-
-
-
-
-Lg
-Prod:
-select
-serialnumber,aep_usage_dt,aep_derived_uom,aep_channel_id,aep_raw_value, value,aep_service_point,aep_premise_nb
-from "xfrm_interval"."reading_ivl_nonvee_incr"
-where ((hdp_update_dttm >= TIMESTAMP '2026-03-23 00:00:00' and hdp_update_dttm < TIMESTAMP '2026-03-24 00:00:00') or
-(hdp_insert_dttm >= TIMESTAMP '2026-03-23 00:00:00' and hdp_insert_dttm < TIMESTAMP '2026-03-24 00:00:00'))
-and aep_opco ='tx'
-and serialnumber ='200306248'
--- and aep_premise_nb = '971213203'
--- and aep_channel_id = '102'
-and aep_endtime_utc = '1774257300'
- 
-Dev:
-select
-*
-from "xfrm_interval"."reading_ivl_nonvee_incr"
-where ((hdp_update_dttm >= TIMESTAMP '2026-03-24 00:00:00' ) or
-(hdp_insert_dttm >= TIMESTAMP '2026-03-24 00:00:00' ))
-and aep_opco ='tx'
-and serialnumber ='200306248'
--- and aep_premise_nb = '971213203'
--- -- and aep_channel_id = '102'
-and aep_endtime_utc = '1774257300'
-
-
-select * from usage_nonvee.reading_ivl_nonvee_tx
-where aep_usage_dt = '2026-03-25'
-and serialnumber ='109103600'
-and aep_endtime_utc = '1774415700'
-order by name_register
- 
- 
-<<dv_reading_ivl_nonvee_tx_25032026_prod.csv>>
- 
-<<dv_reading_ivl_nonvee_tx_25032026_dev.csv>>
-
-
+SELECT *
+FROM usage_nonvee.reading_ivl_nonvee_oh
+WHERE aep_usage_dt = '2026-03-27'
+  AND aep_opco = 'oh'
+-- AND serialnumber = '<serial_number>'
+-- AND aep_endtime_utc = '<epoch>'
+ORDER BY serialnumber, name_register
+LIMIT 100;
