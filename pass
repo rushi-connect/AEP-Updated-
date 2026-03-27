@@ -70,3 +70,38 @@ WHERE aep_usage_dt = '2026-03-23'
 ORDER BY serialnumber, aep_channel_id, endtimeperiod
 LIMIT 150
 
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+from pyspark.sql import SparkSession
+import pyspark.sql.functions as F
+
+spark = SparkSession.builder \
+    .appName("nonvee-uiq-info-uat-validation") \
+    .config("spark.sql.extensions", "org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions") \
+    .config("spark.sql.catalog.spark_catalog", "org.apache.iceberg.spark.SparkSessionCatalog") \
+    .config("spark.sql.catalog.spark_catalog.type", "glue") \
+    .config("spark.sql.session.timeZone", "America/New_York") \
+    .config("spark.sql.legacy.timeParserPolicy", "LEGACY") \
+    .enableHiveSupport() \
+    .getOrCreate()
+
+# DEV tables (Glue catalog)
+dev_xfrm_df = spark.table("xfrm_interval.reading_ivl_nonvee_incr")
+dev_consume_df = spark.table("usage_nonvee.reading_ivl_nonvee_oh")
+
+# PROD - read directly from S3 (cross-account)
+prod_consume_df = spark.read.parquet("s3://aep-datalake-consume-prod/iceberg/usage_nonvee/reading_ivl_nonvee_oh/data/")
+
+# Now query both
+prod_consume_df.filter(
+    F.col("aep_usage_dt") == "2026-03-23"
+).select("serialnumber", "aep_premise_nb", "aep_city", "aep_state").show(10, truncate=False)
