@@ -80,3 +80,60 @@ FROM xfrm_interval.reading_ivl_nonvee_incr
 WHERE aep_opco = 'oh'
   AND run_date IN ('20260324_121443', '20260326_111146')
 GROUP BY run_date
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Lg
+Prod:
+select
+serialnumber,aep_usage_dt,aep_derived_uom,aep_channel_id,aep_raw_value, value,aep_service_point,aep_premise_nb
+from "xfrm_interval"."reading_ivl_nonvee_incr"
+where ((hdp_update_dttm >= TIMESTAMP '2026-03-23 00:00:00' and hdp_update_dttm < TIMESTAMP '2026-03-24 00:00:00') or
+(hdp_insert_dttm >= TIMESTAMP '2026-03-23 00:00:00' and hdp_insert_dttm < TIMESTAMP '2026-03-24 00:00:00'))
+and aep_opco ='tx'
+and serialnumber ='200306248'
+-- and aep_premise_nb = '971213203'
+-- and aep_channel_id = '102'
+and aep_endtime_utc = '1774257300'
+ 
+Dev:
+select
+*
+from "xfrm_interval"."reading_ivl_nonvee_incr"
+where ((hdp_update_dttm >= TIMESTAMP '2026-03-24 00:00:00' ) or
+(hdp_insert_dttm >= TIMESTAMP '2026-03-24 00:00:00' ))
+and aep_opco ='tx'
+and serialnumber ='200306248'
+-- and aep_premise_nb = '971213203'
+-- -- and aep_channel_id = '102'
+and aep_endtime_utc = '1774257300'
+
+
+select * from usage_nonvee.reading_ivl_nonvee_tx
+where aep_usage_dt = '2026-03-25'
+and serialnumber ='109103600'
+and aep_endtime_utc = '1774415700'
+order by name_register
+ 
+ 
+<<dv_reading_ivl_nonvee_tx_25032026_prod.csv>>
+ 
+<<dv_reading_ivl_nonvee_tx_25032026_dev.csv>>
+
+
