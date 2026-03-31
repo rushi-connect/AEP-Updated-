@@ -73,7 +73,34 @@ LIMIT 150
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
-
+SELECT 
+    m.mfr_devc_ser_nbr,
+    m.prem_nb,
+    m.mtr_inst_ts,
+    m.mtr_rmvl_ts,
+    m.acct_turn_on_dt,
+    m.acct_turn_off_dt,
+    -- MACS unix timestamps
+    unix_timestamp(m.mtr_inst_ts, "yyyy-MM-dd HH:mm:ss") as unix_mtr_inst_ts,
+    CASE m.mtr_rmvl_ts 
+      WHEN '9999-01-01' THEN unix_timestamp(m.mtr_rmvl_ts, "yyyy-MM-dd")
+      ELSE unix_timestamp(m.mtr_rmvl_ts, "yyyy-MM-dd HH:mm:ss") 
+    END as unix_mtr_rmvl_ts,
+    unix_timestamp(m.acct_turn_on_dt, "yyyy-MM-dd") as unix_acct_turn_on_dt,
+    unix_timestamp(m.acct_turn_off_dt, "yyyy-MM-dd") as unix_acct_turn_off_dt,
+    -- Sample endtime from the data (pick one aep_endtime_utc from your results)
+    1774930500 as unix_endtime,
+    -- Check conditions
+    CASE WHEN 1774930500 BETWEEN unix_timestamp(m.mtr_inst_ts, "yyyy-MM-dd HH:mm:ss") 
+         AND (CASE m.mtr_rmvl_ts WHEN '9999-01-01' THEN unix_timestamp(m.mtr_rmvl_ts, "yyyy-MM-dd") 
+              ELSE unix_timestamp(m.mtr_rmvl_ts, "yyyy-MM-dd HH:mm:ss") END)
+         THEN 'PASS' ELSE 'FAIL' END as meter_window_check,
+    CASE WHEN 1774930500 BETWEEN unix_timestamp(m.acct_turn_on_dt, "yyyy-MM-dd") 
+         AND unix_timestamp(m.acct_turn_off_dt, "yyyy-MM-dd")
+         THEN 'PASS' ELSE 'FAIL' END as account_window_check
+FROM stg_nonvee.meter_premise_macs_ami m
+WHERE mfr_devc_ser_nbr = '876727093'
+  AND (co_cd_ownr = '07' OR co_cd_ownr = '10');
 
 
 
