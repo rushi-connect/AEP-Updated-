@@ -81,26 +81,30 @@ SELECT
     m.acct_turn_on_dt,
     m.acct_turn_off_dt,
     -- MACS unix timestamps
-    unix_timestamp(m.mtr_inst_ts, "yyyy-MM-dd HH:mm:ss") as unix_mtr_inst_ts,
+    to_unixtime(date_parse(m.mtr_inst_ts, '%Y-%m-%d %H:%i:%s')) as unix_mtr_inst_ts,
     CASE m.mtr_rmvl_ts 
-      WHEN '9999-01-01' THEN unix_timestamp(m.mtr_rmvl_ts, "yyyy-MM-dd")
-      ELSE unix_timestamp(m.mtr_rmvl_ts, "yyyy-MM-dd HH:mm:ss") 
+      WHEN '9999-01-01' THEN to_unixtime(date_parse(m.mtr_rmvl_ts, '%Y-%m-%d'))
+      ELSE to_unixtime(date_parse(m.mtr_rmvl_ts, '%Y-%m-%d %H:%i:%s')) 
     END as unix_mtr_rmvl_ts,
-    unix_timestamp(m.acct_turn_on_dt, "yyyy-MM-dd") as unix_acct_turn_on_dt,
-    unix_timestamp(m.acct_turn_off_dt, "yyyy-MM-dd") as unix_acct_turn_off_dt,
-    -- Sample endtime from the data (pick one aep_endtime_utc from your results)
+    to_unixtime(date_parse(m.acct_turn_on_dt, '%Y-%m-%d')) as unix_acct_turn_on_dt,
+    to_unixtime(date_parse(m.acct_turn_off_dt, '%Y-%m-%d')) as unix_acct_turn_off_dt,
+    -- Sample endtime from your results
     1774930500 as unix_endtime,
     -- Check conditions
-    CASE WHEN 1774930500 BETWEEN unix_timestamp(m.mtr_inst_ts, "yyyy-MM-dd HH:mm:ss") 
-         AND (CASE m.mtr_rmvl_ts WHEN '9999-01-01' THEN unix_timestamp(m.mtr_rmvl_ts, "yyyy-MM-dd") 
-              ELSE unix_timestamp(m.mtr_rmvl_ts, "yyyy-MM-dd HH:mm:ss") END)
+    CASE WHEN 1774930500 BETWEEN 
+         to_unixtime(date_parse(m.mtr_inst_ts, '%Y-%m-%d %H:%i:%s'))
+         AND (CASE m.mtr_rmvl_ts 
+              WHEN '9999-01-01' THEN to_unixtime(date_parse(m.mtr_rmvl_ts, '%Y-%m-%d')) 
+              ELSE to_unixtime(date_parse(m.mtr_rmvl_ts, '%Y-%m-%d %H:%i:%s')) END)
          THEN 'PASS' ELSE 'FAIL' END as meter_window_check,
-    CASE WHEN 1774930500 BETWEEN unix_timestamp(m.acct_turn_on_dt, "yyyy-MM-dd") 
-         AND unix_timestamp(m.acct_turn_off_dt, "yyyy-MM-dd")
+    CASE WHEN 1774930500 BETWEEN 
+         to_unixtime(date_parse(m.acct_turn_on_dt, '%Y-%m-%d')) 
+         AND to_unixtime(date_parse(m.acct_turn_off_dt, '%Y-%m-%d'))
          THEN 'PASS' ELSE 'FAIL' END as account_window_check
 FROM stg_nonvee.meter_premise_macs_ami m
 WHERE mfr_devc_ser_nbr = '876727093'
   AND (co_cd_ownr = '07' OR co_cd_ownr = '10');
+
 
 
 
