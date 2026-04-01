@@ -1,6 +1,12 @@
 s398375
 Twilight=8308868732
 
+SELECT aep_channel_id, aep_raw_uom
+FROM xfrm_interval.reading_ivl_nonvee_incr
+WHERE serialnumber = '923530104'
+  AND aep_endtime_utc = '1775016900'
+  AND aep_opco = 'oh'
+ORDER BY aep_channel_id;
 
 SELECT aep_channel_id, aep_raw_uom
 FROM xfrm_interval.reading_ivl_nonvee_incr
