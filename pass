@@ -1,3 +1,16 @@
+select 
+serialnumber,aep_usage_dt,aep_derived_uom,aep_channel_id,aep_raw_value, value,aep_service_point,aep_premise_nb
+from "xfrm_interval"."reading_ivl_nonvee_incr" 
+where ((hdp_update_dttm >= TIMESTAMP '2026-03-31 00:00:00' and hdp_update_dttm < TIMESTAMP '2026-04-01 00:00:00') or 
+(hdp_insert_dttm >= TIMESTAMP '2026-03-31 00:00:00' and hdp_insert_dttm < TIMESTAMP '2026-04-01 00:00:00'))
+and aep_opco ='oh'
+and aep_usage_dt = '2026-04-01'  
+and serialnumber = '445494200'
+and aep_premise_nb = '107641531'
+and hdp_update_user = 'info-insert'
+and aep_endtime_utc = '1775045700'
+
+
 s398375
 Twilight=8308868732
 
